@@ -1,0 +1,10 @@
+name = Webspeech SST (Speech to Text)
+description = Drupal Sandbox Module to Implement Webspeech API's Speech to Text Functionality for Fields
+package = Core
+version = VERSION
+core = 7.x
+dependencies[] = field
+;files[] = text.test
+
+
+
