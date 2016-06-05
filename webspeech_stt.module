@@ -89,7 +89,7 @@ function webspeech_stt_field_settings_form($field, $instance, $has_data) {
  */
 function webspeech_stt_field_instance_settings_form($field, $instance) {
 
-  drupal_add_js('sites/all/modules/custom/webspeech_stt/webspeech_stt.js?v=1');
+  
 
   $settings = $instance['settings'];
 
@@ -511,6 +511,10 @@ function webspeech_stt_field_widget_settings_form($field, $instance) {
 function webspeech_stt_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
   $summary_widget = array();
   $main_widget = array();
+  drupal_set_message("foo Drupal");
+  //drupal_static_reset('sites/all/modules/webspeech_stt/webspeech_stt.js?v=1');
+  // drupal_add_js('sites/all/modules/custom/webspeech_tts/webspeech_tts.js?v=1');
+
 
   switch ($instance['widget']['type']) {
     case 'webspeech_stt_textfield':
@@ -519,7 +523,11 @@ function webspeech_stt_field_widget_form(&$form, &$form_state, $field, $instance
         '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
         '#size' => $instance['widget']['settings']['size'],
         '#maxlength' => $field['settings']['max_length'],
+        '#attached' => array(
+          'js' => array(drupal_get_path('module', 'webspeech_stt') . '/webspeech_stt.js'),
+        ),
         '#attributes' => array('class' => array('text-full')),
+        '#prefix' => '<div class="text-summary-wrapper"><button type="button">Click Me! Text field</button>',
       );
       break;
 
@@ -532,11 +540,11 @@ function webspeech_stt_field_widget_form(&$form, &$form_state, $field, $instance
         '#rows' => $instance['widget']['settings']['summary_rows'],
         '#description' => t('Leave blank to use trimmed value of full text as the summary.'),
         '#attached' => array(
-          'js' => array(drupal_get_path('module', 'webspeech_sst') . '/webspeech_sst.js'),
+          'js' => array(drupal_get_path('module', 'webspeech_stt') . '/webspeech_stt.js'),
         ),
         '#attributes' => array('class' => array('text-summary')),
         '#prefix' => '<div class="text-summary-wrapper">',
-        '#suffix' => '</div>',
+        '#suffix' => '<button type="button">Click Me! Text area with summary</button></div>',
         '#weight' => -10,
       );
       // Fall through to the next case.
@@ -544,9 +552,15 @@ function webspeech_stt_field_widget_form(&$form, &$form_state, $field, $instance
     case 'webspeech_stt_textarea':
       $main_widget = $element + array(
         '#type' => 'textarea',
+        '#ID'=>'final_span',
         '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
         '#rows' => $instance['widget']['settings']['rows'],
         '#attributes' => array('class' => array('text-full')),
+        '#attached' => array(
+          'js' => array(drupal_get_path('module', 'webspeech_stt') . '/webspeech_stt.js'),
+        ),
+        '#prefix' => '<div class="text-summary-wrapper">',
+        '#suffix' => '<button type="button" id="button_textarea">Click Me! Textarea</button></div>'
       );
       break;
   }
