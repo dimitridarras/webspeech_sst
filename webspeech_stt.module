@@ -528,6 +528,7 @@ function webspeech_stt_field_widget_form(&$form, &$form_state, $field, $instance
         ),
         '#attributes' => array('class' => array('text-full')),
         '#prefix' => '<div class="text-summary-wrapper"><button type="button">Click Me! Text field</button>',
+        '#id' => 'webspeech_stt_textfield',
       );
       break;
 
@@ -539,10 +540,11 @@ function webspeech_stt_field_widget_form(&$form, &$form_state, $field, $instance
         '#title' => t('Summary'),
         '#rows' => $instance['widget']['settings']['summary_rows'],
         '#description' => t('Leave blank to use trimmed value of full text as the summary.'),
-        '#attached' => array(
-          'js' => array(drupal_get_path('module', 'webspeech_stt') . '/webspeech_stt.js'),
-        ),
+        //'#attached' => array(
+        //  'js' => array(drupal_get_path('module', 'webspeech_stt') . '/webspeech_stt.js'),
+        //),
         '#attributes' => array('class' => array('text-summary')),
+        '#id' => 'webspeech_stt_textarea_with_summary',
         '#prefix' => '<div class="text-summary-wrapper">',
         '#suffix' => '<button type="button">Click Me! Text area with summary</button></div>',
         '#weight' => -10,
@@ -552,14 +554,14 @@ function webspeech_stt_field_widget_form(&$form, &$form_state, $field, $instance
     case 'webspeech_stt_textarea':
       $main_widget = $element + array(
         '#type' => 'textarea',
-        '#ID'=>'final_span',
         '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
         '#rows' => $instance['widget']['settings']['rows'],
         '#attributes' => array('class' => array('text-full')),
+        '#id' => 'webspeech_stt_textarea',
         '#attached' => array(
           'js' => array(drupal_get_path('module', 'webspeech_stt') . '/webspeech_stt.js'),
         ),
-        '#prefix' => '<div class="text-summary-wrapper">',
+        '#prefix' => '<div class="text-summary-wrapper"></div>',
         '#suffix' => '<button type="button" id="button_textarea">Click Me! Textarea</button></div>'
       );
       break;
