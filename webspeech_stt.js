@@ -1,37 +1,36 @@
 
 (function ($) {
 
-alert("foo JS");
-
-var recognizer = new webkitSpeechRecognition();
-recognizer.lang = "en";
-recognizer.onresult = function(event)   {
-    if (event.results.length > 0) {
-        var result = event.results[event.results.length-1];
-        if(result.isFinal) {
-            console.log(result[0].transcript);          
-            $('#webspeech_stt_textfield').append((result[0].transcript));
-            $('#webspeech_stt_textarea_with_summary').append((result[0].transcript));   
-            $('#webspeech_stt_textarea').append((result[0].transcript));                
-        } 
-    }  
-};
-
-recognizer.start();
+//alert("foo JS");
 
 Drupal.behaviors.webspeech_stt = {
-
-
-
     
     attach: function () {
 
       $('#button_textarea').click(function () {
-        alert("Button clicked");
+        //alert("Button clicked");
+      var recognizer = new webkitSpeechRecognition();
+      recognizer.lang = "en";
+      recognizer.onresult = function(event)   {
+        if (event.results.length > 0) {
+            var result = event.results[event.results.length-1];
+            if(result.isFinal) {
+                console.log(result[0].transcript);          
+                $('#webspeech_stt_textfield').append((result[0].transcript));
+                $('#webspeech_stt_textarea_with_summary').append((result[0].transcript));   
+                $('#webspeech_stt_textarea').append((result[0].transcript));                
+            } 
+        }  
+    };
 
-        });
-      }
-    }
+recognizer.start();
+
+  });
+
+}
+
+
+}
 
 
 

@@ -527,7 +527,7 @@ function webspeech_stt_field_widget_form(&$form, &$form_state, $field, $instance
           'js' => array(drupal_get_path('module', 'webspeech_stt') . '/webspeech_stt.js'),
         ),
         '#attributes' => array('class' => array('text-full')),
-        '#prefix' => '<div class="text-summary-wrapper"><button type="button">Click Me! Text field</button>',
+        '#prefix' => '<div class="text-summary-wrapper"><button type="button" id="button_textarea">Record Speech</button>',
         '#id' => 'webspeech_stt_textfield',
       );
       break;
@@ -546,7 +546,7 @@ function webspeech_stt_field_widget_form(&$form, &$form_state, $field, $instance
         '#attributes' => array('class' => array('text-summary')),
         '#id' => 'webspeech_stt_textarea_with_summary',
         '#prefix' => '<div class="text-summary-wrapper">',
-        '#suffix' => '<button type="button">Click Me! Text area with summary</button></div>',
+        '#suffix' => '<button type="button" id="button_textarea">Record Speech</button></div>',
         '#weight' => -10,
       );
       // Fall through to the next case.
@@ -562,7 +562,7 @@ function webspeech_stt_field_widget_form(&$form, &$form_state, $field, $instance
           'js' => array(drupal_get_path('module', 'webspeech_stt') . '/webspeech_stt.js'),
         ),
         '#prefix' => '<div class="text-summary-wrapper"></div>',
-        '#suffix' => '<button type="button" id="button_textarea">Click Me! Textarea</button></div>'
+        '#suffix' => '<button type="button" id="button_textarea">Record Speech</button></div>'
       );
       break;
   }
