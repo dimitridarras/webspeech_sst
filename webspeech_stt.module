@@ -14,7 +14,7 @@ function webspeech_stt_help($path, $arg) {
     case 'admin/help#webspeech_stt':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t("The Webspeech SST module defines a text field that you can dictate text into using Chrome's implementation of the Webspeech API.").'</p>';
+      $output .= '<p>' . t("The Webspeech SST module defines a text field that you can dictate text into using Chrome's implementation of the Webspeech API.  Use the correct field when editing your Content Type fields").'</p>';
       return $output;
   }
 }
@@ -22,36 +22,15 @@ function webspeech_stt_help($path, $arg) {
 /**
  * Implements hook_field_info().
  *
- * Field settings:
- *   - max_length: the maximum length for a varchar field.
- * Instance settings:
- *   - webspeech_stt_processing: whether text input filters should be used.
- *   - display_summary: whether the summary field should be displayed.
- *     When empty and not displayed the summary will take its value from the
- *     trimmed value of the main text field.
  */
+
 function webspeech_stt_field_info() {
-  return array(
-    'text' => array(
-      'label' => t('Webspeech STT'),
-      'description' => t('This field stores varchar text dictated by the user (Chrome) in the database.'),
-      'settings' => array('max_length' => 255),
-      'instance_settings' => array('webspeech_stt_processing' => 0),
-      'default_widget' => 'webspeech_stt_textfield',
-      'default_formatter' => 'webspeech_stt_default',
-    ),
+  return array(    
     'webspeech_stt_long' => array(
       'label' => t('Webspeech STT Long text'),
       'description' => t('This field stores long text in the database.'),
       'instance_settings' => array('webspeech_stt_processing' => 0),
       'default_widget' => 'webspeech_stt_textarea',
-      'default_formatter' => 'webspeech_stt_default',
-    ),
-    'webspeech_stt_with_summary' => array(
-      'label' => t('Webspeech STT Long text and summary'),
-      'description' => t('This field stores long text in the database along with optional summary text.'),
-      'instance_settings' => array('webspeech_stt_processing' => 1, 'display_summary' => 0),
-      'default_widget' => 'webspeech_stt_textarea_with_summary',
       'default_formatter' => 'webspeech_stt_default',
     ),
   );
@@ -89,8 +68,6 @@ function webspeech_stt_field_settings_form($field, $instance, $has_data) {
  */
 function webspeech_stt_field_instance_settings_form($field, $instance) {
 
-  
-
   $settings = $instance['settings'];
 
   $form['webspeech_stt_processing'] = array(
@@ -102,15 +79,7 @@ function webspeech_stt_field_instance_settings_form($field, $instance) {
       t('Filtered text (user selects text format)'),
     ),
   );
-  if ($field['type'] == 'webspeech_stt_with_summary') {
-    $form['display_summary'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Summary input'),
-      '#default_value' => $settings['display_summary'],
-      '#description' => t('This allows authors to input an explicit summary, to be displayed instead of the automatically trimmed text when using the "Summary or trimmed" display type.'),
-    );
-  }
-
+  
   return $form;
 }
 
@@ -121,6 +90,7 @@ function webspeech_stt_field_instance_settings_form($field, $instance) {
  * - 'webspeech_stt_value_max_length': The value exceeds the maximum length.
  * - 'webspeech_stt_summary_max_length': The summary exceeds the maximum length.
  */
+
 function webspeech_stt_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
   foreach ($items as $delta => $item) {
     // @todo Length is counted separately for summary and value, so the maximum
@@ -148,31 +118,6 @@ function webspeech_stt_field_validate($entity_type, $entity, $field, $instance, 
 }
 
 /**
- * Implements hook_field_load().
- *
- * Where possible, generate the sanitized version of each field early so that
- * it is cached in the field cache. This avoids looking up from the filter cache
- * separately.
- *
- * @see webspeech_stt_field_formatter_view()
- */
-function webspeech_stt_field_load($entity_type, $entities, $field, $instances, $langcode, &$items) {
-
-  foreach ($entities as $id => $entity) {
-    foreach ($items[$id] as $delta => $item) {
-      // Only process items with a cacheable format, the rest will be handled
-      // by formatters if needed.
-      if (empty($instances[$id]['settings']['webspeech_stt_processing']) || filter_format_allowcache($item['format'])) {
-        $items[$id][$delta]['safe_value'] = isset($item['value']) ? _webspeech_stt_sanitize($instances[$id], $langcode, $item, 'value') : '';
-        if ($field['type'] == 'webspeech_stt_with_summary') {
-          $items[$id][$delta]['safe_summary'] = isset($item['summary']) ? _webspeech_stt_sanitize($instances[$id], $langcode, $item, 'summary') : '';
-        }
-      }
-    }
-  }
-}
-
-/**
  * Implements hook_field_is_empty().
  */
 function webspeech_stt_field_is_empty($item, $field) {
@@ -189,11 +134,11 @@ function webspeech_stt_field_formatter_info() {
   return array(
     'webspeech_stt_default' => array(
       'label' => t('Default'),
-      'field types' => array('webspeech_stt', 'webspeech_stt_long', 'webspeech_stt_with_summary'),
+      'field types' => array('webspeech_stt', 'webspeech_stt_long'),
     ),
     'webspeech_stt_plain' => array(
       'label' => t('Plain text'),
-      'field types' => array('webspeech_stt', 'webspeech_stt_long', 'webspeech_stt_with_summary'),
+      'field types' => array('webspeech_stt', 'webspeech_stt_long'),
     ),
 
     // The webspeech_stt_trimmed formatter displays the trimmed version of the
@@ -203,7 +148,7 @@ function webspeech_stt_field_formatter_info() {
     // sense for that field type.
     'webspeech_stt_trimmed' => array(
       'label' => t('Trimmed'),
-      'field types' => array('webspeech_stt', 'webspeech_stt_long', 'webspeech_stt_with_summary'),
+      'field types' => array('webspeech_stt', 'webspeech_stt_long'),
       'settings' => array('trim_length' => 600),
     ),
 
@@ -468,11 +413,6 @@ function webspeech_stt_field_widget_info() {
       'field types' => array('webspeech_stt_long'),
       'settings' => array('rows' => 5),
     ),
-    'webspeech_stt_textarea_with_summary' => array(
-      'label' => t('Webspeech STT Text area with a summary'),
-      'field types' => array('webspeech_stt_with_summary'),
-      'settings' => array('rows' => 20, 'summary_rows' => 5),
-    ),
   );
 }
 
@@ -511,7 +451,7 @@ function webspeech_stt_field_widget_settings_form($field, $instance) {
 function webspeech_stt_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
   $summary_widget = array();
   $main_widget = array();
-  drupal_set_message("foo Drupal");
+  //drupal_set_message("foo Drupal");
   //drupal_static_reset('sites/all/modules/webspeech_stt/webspeech_stt.js?v=1');
   // drupal_add_js('sites/all/modules/custom/webspeech_tts/webspeech_tts.js?v=1');
 
@@ -527,28 +467,12 @@ function webspeech_stt_field_widget_form(&$form, &$form_state, $field, $instance
           'js' => array(drupal_get_path('module', 'webspeech_stt') . '/webspeech_stt.js'),
         ),
         '#attributes' => array('class' => array('text-full')),
-        '#prefix' => '<div class="text-summary-wrapper"><button type="button" id="button_textarea">Record Speech</button>',
+        '#prefix' => '<div class="text-summary-wrapper" style="background-col"><button type="button" id="button_textfield">Record Speech</button>',
         '#id' => 'webspeech_stt_textfield',
       );
       break;
 
-    case 'webspeech_stt_textarea_with_summary':
-      $display = !empty($items[$delta]['summary']) || !empty($instance['settings']['display_summary']);
-      $summary_widget = array(
-        '#type' => $display ? 'textarea' : 'value',
-        '#default_value' => isset($items[$delta]['summary']) ? $items[$delta]['summary'] : NULL,
-        '#title' => t('Summary'),
-        '#rows' => $instance['widget']['settings']['summary_rows'],
-        '#description' => t('Leave blank to use trimmed value of full text as the summary.'),
-        //'#attached' => array(
-        //  'js' => array(drupal_get_path('module', 'webspeech_stt') . '/webspeech_stt.js'),
-        //),
-        '#attributes' => array('class' => array('text-summary')),
-        '#id' => 'webspeech_stt_textarea_with_summary',
-        '#prefix' => '<div class="text-summary-wrapper">',
-        '#suffix' => '<button type="button" id="button_textarea">Record Speech</button></div>',
-        '#weight' => -10,
-      );
+    
       // Fall through to the next case.
 
     case 'webspeech_stt_textarea':
@@ -562,7 +486,7 @@ function webspeech_stt_field_widget_form(&$form, &$form_state, $field, $instance
           'js' => array(drupal_get_path('module', 'webspeech_stt') . '/webspeech_stt.js'),
         ),
         '#prefix' => '<div class="text-summary-wrapper"></div>',
-        '#suffix' => '<button type="button" id="button_textarea">Record Speech</button></div>'
+        '#suffix' => '<button type="button" id="button_textarea">Record Speech </button></div>'
       );
       break;
   }
